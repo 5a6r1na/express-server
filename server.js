@@ -12,6 +12,9 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "./index.html"));
 });
+app.post("/", (req, res) => {
+  res.json(req.body);
+});
 
 app.get("/data", (req, res) => {
   res.json("Hello from Express server!");
