@@ -27,7 +27,7 @@ async function scrapeWebsite(url) {
   }
 }
 
-// Example usage:
+
 const requestData = {
   depa: "TPE",
   dest: "OKA",
