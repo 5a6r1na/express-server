@@ -63,6 +63,8 @@ app.post("/flights", async (req, res) => {
     const requestData = req.body; // Access the entire request body
     const params = new URLSearchParams(requestData).toString();
     const url = `https://www.travel4u.com.tw/flight/search/flights/?${params}`;
+    // const url = `https://flight.eztravel.com.tw/tickets-roundtrip-${requestData.depa}-${requestData.dest}/?outbounddate=${requestData.OUT_DATE}&inbounddate=${requestData.IN_DATE}&dport=&aport=&adults=${requestData.adults}&children=0&infants=0&direct=true&cabintype=tourist&airline=&searchbox=t`
+    // const url = `https://flight.eztravel.com.tw/tickets-${trip}-${depa}-${dest}/?outbounddate=${OUT_DATE}&inbounddate=${IN_DATE}&dport=&aport=&adults=${adults}&children=0&infants=0&direct=true&cabintype=&airline=&searchbox=s`
     const response = await fetch(url);
     const data = await response.json();
     res.json(data);
