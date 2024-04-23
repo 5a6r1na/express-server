@@ -19,18 +19,10 @@ document.getElementById("fetchDataBtn").addEventListener("click", fetchData);
 async function fetchData() {
   // Show loading animation
   document.getElementById("loading").style.display = "block";
-
+  // let requestData;
+  const requestArray =[];
 
   try {
-    // const selectedStartDate =
-    //   document.getElementById("startDateDropdown").value;
-    // const selectedEndDate = document.getElementById("endDateDropdown").value;
-    // // Use the selected values as needed
-    // console.log("Selected start date:", selectedStartDate);
-    // console.log("Selected end date:", selectedEndDate);
-
-
-
     const year = 2024;
     const month = parseInt(document.getElementById("inputMonth").value);
     const weekendDates = getWeekendDates(year, month);
@@ -39,7 +31,7 @@ async function fetchData() {
 
     const friArray = [];
     const sunArray = [];
-    const flightData = [];
+    
 
     weekendDates.forEach((value, index) => {
       if (index % 2 === 0) {
@@ -69,11 +61,13 @@ async function fetchData() {
       cabin_class: 2,
       is_direct_flight_only: true,
       exclude_budget_airline: false,
-      search_key: "26f232d3205cebfde9db515b67b88b15f21aa1b6",
+      search_key: "",
       target_page: 1,
       order_by: "0_1",
     };
 
+    const params = new URLSearchParams(requestData).toString();
+    requestArray.push(params);
     // const requestDataRound = {
     //   depa: "TPE",
     //   dest: "OKA",
@@ -81,7 +75,6 @@ async function fetchData() {
     //   IN_DATE: sunArray[i],
     //   adults: 1,
     // };
-
     return fetch("/flights", {
       method: "POST",
       headers: {
@@ -89,6 +82,8 @@ async function fetchData() {
       },
       body: JSON.stringify(requestData),
     }).then(response => response.json());})
+
+    
   
     const responseData = await Promise.all(promises);
     
@@ -97,9 +92,10 @@ async function fetchData() {
   
     console.log("responseData: ", responseData)
 
-  
+
+
      // Display the accumulated flight data
-     displayResult(responseData, friArray, sunArray);
+     displayResult(responseData, friArray, sunArray, requestArray);
   } catch (error) {
     console.error("Error fetching data:", error);
     // Hide loading animation in case of error
@@ -132,7 +128,7 @@ document
     // console.log(`Weekend Dates for ${month} 2024:`);
   });
 
-  function displayResult(data, friArray, sunArray) {
+  function displayResult(data, friArray, sunArray, requestArray) {
     const resultContainer = document.getElementById("resultContainer");
     let tableHtml = `<table><tr><th style="border: 1px solid black;padding: 10px;">Dates</th><th style="border: 1px solid black;padding: 10px;">Airline</th><th style="border: 1px solid black;padding: 10px;">Price</th></tr>`;
   
@@ -150,9 +146,10 @@ document
       style: "currency",
       currency: "TWD",
     });
+
   
       // Add a row to the table for the cheapest option
-      tableHtml += `<tr><td style='border: 1px solid black; padding: 10px;'>${friArray[index]} ~ ${sunArray[index]}</td><td style='border: 1px solid black; padding: 10px;'>${cheapestOption.carrierName}</td><td style='border: 1px solid black;padding: 10px'>${formattedPrice}</td></tr>`;
+      tableHtml += `<tr><td style='border: 1px solid black; padding: 10px;'>${friArray[index]} ~ ${sunArray[index]}</td><td style='border: 1px solid black; padding: 10px;'>${cheapestOption.carrierName}</td><td style='border: 1px solid black;padding: 10px'><a href="https://www.travel4u.com.tw/flight/search/?${requestArray[index]}">${formattedPrice}</a></td></tr>`;
     });
   
     tableHtml += "</table>";
