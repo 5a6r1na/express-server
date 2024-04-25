@@ -1,3 +1,5 @@
+// https://blog.typeart.cc/using-puppeteer-crawler-common-skills/
+
 const puppeteer = require("puppeteer");
 
 
@@ -45,3 +47,5 @@ scrapeWebsite(websiteUrl)
   .catch((error) => {
     console.error("Error during scraping:", error);
   });
+
+  module.exports = {scrapeWebsite}
