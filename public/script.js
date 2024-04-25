@@ -1,5 +1,85 @@
 document.getElementById("fetchDataBtn").addEventListener("click", fetchData);
 
+const monthOptions = [
+  { value: "1", textContent: "January" },
+  { value: "2", textContent: "February" },
+  { value: "3", textContent: "March" },
+  { value: "4", textContent: "April" },
+  { value: "5", textContent: "May" },
+  { value: "6", textContent: "June" },
+  { value: "7", textContent: "July" },
+  { value: "8", textContent: "August" },
+  { value: "9", textContent: "September" },
+  { value: "10", textContent: "October" },
+  { value: "11", textContent: "November" },
+  { value: "12", textContent: "December" }
+];
+
+const yearOptions = [
+  "2024",
+  "2025",
+  "2026",
+  "2027",
+  "2028",
+  "2029",
+  "2030",
+  "2031",
+  "2032",
+  "2033",
+  "2034"
+].map(year => ({ value: year, textContent: year }));
+
+const departOptions = [
+  { value: "TPE", textContent: "Taipei" },
+  // { value: "2", textContent: "February" },
+  // { value: "3", textContent: "March" },
+  // { value: "4", textContent: "April" },
+  // { value: "5", textContent: "May" },
+  // { value: "6", textContent: "June" },
+  // { value: "7", textContent: "July" },
+  // { value: "8", textContent: "August" },
+  // { value: "9", textContent: "September" },
+  // { value: "10", textContent: "October" },
+  // { value: "11", textContent: "November" },
+  // { value: "12", textContent: "December" }
+];
+
+const arrivalOptions = [
+  { value: "TYO", textContent: "Tokyo" },
+  // { value: "2", textContent: "February" },
+  // { value: "3", textContent: "March" },
+  // { value: "4", textContent: "April" },
+  // { value: "5", textContent: "May" },
+  // { value: "6", textContent: "June" },
+  // { value: "7", textContent: "July" },
+  // { value: "8", textContent: "August" },
+  // { value: "9", textContent: "September" },
+  // { value: "10", textContent: "October" },
+  // { value: "11", textContent: "November" },
+  // { value: "12", textContent: "December" }
+];
+
+const adultOptions = [
+  "1",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6",
+  "7",
+  "8",
+  "9",
+  "10",
+].map(adult => ({ value: adult, textContent: adult }));
+
+
+populateDropdown("inputYear",yearOptions);
+populateDropdown("inputMonth",monthOptions);
+populateDropdown("inputDepart",departOptions);
+populateDropdown("inputArrival",arrivalOptions);
+populateDropdown("inputAdult",adultOptions);
+
+
 // async function fetchData() {
 //   try {
 //     const response = await fetch("http://localhost:3000/flights");
@@ -17,18 +97,18 @@ document.getElementById("fetchDataBtn").addEventListener("click", fetchData);
 //   }
 // }
 async function fetchData() {
+
   // Show loading animation
   document.getElementById("loading").style.display = "block";
-  // let requestData;
   const requestArray =[];
 
   try {
-    const year = 2024;
+    const year = parseInt(document.getElementById("inputYear").value);
     const month = parseInt(document.getElementById("inputMonth").value);
+    const depart = document.getElementById("inputDepart").value;
+    const arrival = document.getElementById("inputArrival").value;
+    const adult = document.getElementById("inputAdult").value;
     const weekendDates = getWeekendDates(year, month);
-    console.log(weekendDates)
-    // populateDropdown(weekendDates);
-
     const friArray = [];
     const sunArray = [];
     
@@ -50,13 +130,15 @@ async function fetchData() {
  const sunDate = sunArray[index];
     const requestData = {
       trip: 2,
-      dep_location_codes: "TPE",
-      arr_location_codes: "TYO",
+      // dep_location_codes: "TPE",
+      // arr_location_codes: "TYO",
+      dep_location_codes: depart,
+      arr_location_codes: arrival,
       dep_location_types: 2,
       arr_location_types: 2,
       dep_dates: friDate,
       return_date: sunDate,
-      adult: 1,
+      adult: adult,
       child: 0,
       cabin_class: 2,
       is_direct_flight_only: true,
@@ -103,30 +185,30 @@ async function fetchData() {
   }
 }
 
-document
-  .getElementById("inputMonth")
-  .addEventListener("change", async function (event) {
-    const requestData = {
-      month: this.value,
-    };
-    try {
-      const response = await fetch("/data", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestData),
-      });
-      const data = await response.json();
-      // inputResult(data);
-      console.log("Server response:", data);
-    } catch (error) {
-      console.error("Error sending data:", error);
-    }
+// document
+//   .getElementById("inputMonth")
+//   .addEventListener("change", async function (event) {
+//     const requestData = {
+//       month: this.value,
+//     };
+//     try {
+//       const response = await fetch("/data", {
+//         method: "POST",
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify(requestData),
+//       });
+//       const data = await response.json();
+//       // inputResult(data);
+//       console.log("Server response:", data);
+//     } catch (error) {
+//       console.error("Error sending data:", error);
+//     }
 
     
-    // console.log(`Weekend Dates for ${month} 2024:`);
-  });
+//     // console.log(`Weekend Dates for ${month} 2024:`);
+//   });
 
   function displayResult(data, friArray, sunArray, requestArray) {
     const resultContainer = document.getElementById("resultContainer");
@@ -163,23 +245,6 @@ function inputResult(data) {
   resultContainer.textContent = data;
 }
 
-// function getWeekendDates(year, month) {
-//   const dates = [];
-//   const firstDay = new Date(year, month - 1, 1);
-//   const lastDay = new Date(year, month, 0);
-
-//   for (let d = firstDay; d <= lastDay; d.setDate(d.getDate() + 1)) {
-//     const dayOfWeek = d.getDay();
-//     if (dayOfWeek === 5 || dayOfWeek === 6 || dayOfWeek === 0) {
-//       const formattedDate = `${d.getFullYear()}-${String(
-//         d.getMonth() + 1
-//       ).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-//       dates.push(formattedDate);
-//     }
-//   }
-
-//   return dates;
-// }
 
 function getWeekendDates(year, month) {
   const dates = [];
@@ -225,25 +290,51 @@ function getWeekendDates(year, month) {
 
 
 
-function populateDropdown(weekendDates) {
-  const startDropdown = document.getElementById("startDateDropdown");
-  const endDropdown = document.getElementById("endDateDropdown");
+function populateDropdown(position, optionType) {
+  const container = document.getElementById(position);
+  // const endDropdown = document.getElementById("endDateDropdown");
 
   // Clear existing options
-  startDropdown.innerHTML = "";
-  endDropdown.innerHTML = "";
+  container.innerHTML = "";
+  // endDropdown.innerHTML = "";
 
-  weekendDates.forEach((date) => {
+  optionType.forEach((data) => {
     const option = document.createElement("option");
-    option.textContent = date;
-    option.value = date;
-    startDropdown.appendChild(option);
+    option.textContent = data.textContent;
+    option.value = data.value;
+    container.appendChild(option);
   });
 
-  weekendDates.forEach((date) => {
-    const option = document.createElement("option");
-    option.textContent = date;
-    option.value = date;
-    endDropdown.appendChild(option);
-  });
+  // weekendDates.forEach((date) => {
+  //   const option = document.createElement("option");
+  //   option.textContent = date;
+  //   option.value = date;
+  //   endDropdown.appendChild(option);
+  // });
 }
+
+
+document
+  .getElementById("inputMonth")
+  .addEventListener("change", async function (event) {
+    const requestData = {
+      number: this.value,
+    };
+    try {
+      const response = await fetch("http://localhost:8080/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestData),
+      });
+      const data = await response.json();
+      // inputResult(data);
+      console.log("Server response:", data);
+    } catch (error) {
+      console.error("Error sending data:", error);
+    }
+
+    
+    // console.log(`Weekend Dates for ${month} 2024:`);
+  });
