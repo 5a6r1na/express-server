@@ -2,25 +2,27 @@
 
 const puppeteer = require("puppeteer");
 
-
 async function scrapeWebsite(url) {
   try {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
 
     await page.goto(url);
-    await page.waitForSelector(".flight-list-item")
+    await page.waitForSelector(".flight-list-item");
 
     const flightSingleData = await page.evaluate(() => {
-      const carrier = document.querySelector(".flight-list-item .el-popover__reference").innerText
-      const prices = document.querySelector(".flight-list-item .amount").innerText
+      const carrier = document.querySelector(
+        ".flight-list-item .el-popover__reference"
+      ).innerText;
+      const prices = document.querySelector(
+        ".flight-list-item .amount"
+      ).innerText;
 
       return {
-        carrier:carrier,
-        prices:prices
-      }
-
-  });
+        carrier: carrier,
+        prices: prices,
+      };
+    });
     await browser.close();
     return flightSingleData;
   } catch (error) {
@@ -29,7 +31,6 @@ async function scrapeWebsite(url) {
   }
 }
 
-
 const requestData = {
   depa: "TPE",
   dest: "OKA",
@@ -37,8 +38,8 @@ const requestData = {
   IN_DATE: "30%2F05%2F2024",
   adults: "1",
 };
-const websiteUrl = `https://flight.eztravel.com.tw/tickets-roundtrip-${requestData.depa}-${requestData.dest}/?outbounddate=${requestData.OUT_DATE}&inbounddate=${requestData.IN_DATE}&dport=&aport=&adults=${requestData.adults}&children=0&infants=0&direct=true&cabintype=tourist&airline=&searchbox=t`
-console.log(websiteUrl)
+const websiteUrl = `https://flight.eztravel.com.tw/tickets-roundtrip-${requestData.depa}-${requestData.dest}/?outbounddate=${requestData.OUT_DATE}&inbounddate=${requestData.IN_DATE}&dport=&aport=&adults=${requestData.adults}&children=0&infants=0&direct=true&cabintype=tourist&airline=&searchbox=t`;
+console.log(websiteUrl);
 scrapeWebsite(websiteUrl)
   .then((flightData) => {
     console.log("Flight data:");
@@ -48,4 +49,4 @@ scrapeWebsite(websiteUrl)
     console.error("Error during scraping:", error);
   });
 
-  module.exports = {scrapeWebsite}
+module.exports = { scrapeWebsite };

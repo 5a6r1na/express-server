@@ -103,8 +103,6 @@ async function fetchData() {
       const sunDate = sunArray[index];
       const requestData = {
         trip: 2,
-        // dep_location_codes: "TPE",
-        // arr_location_codes: "TYO",
         dep_location_codes: depart,
         arr_location_codes: arrival,
         dep_location_types: 2,
@@ -124,11 +122,11 @@ async function fetchData() {
       const params = new URLSearchParams(requestData).toString();
       requestArray.push(params);
       // const requestDataRound = {
-      //   depa: "TPE",
-      //   dest: "OKA",
+      //   depa: depart,
+      //   dest: arrival,
       //   OUT_DATE: friArray[i],
       //   IN_DATE: sunArray[i],
-      //   adults: 1,
+      //   adults: adult,
       // };
       return fetch("/flights", {
         method: "POST",
