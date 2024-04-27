@@ -290,26 +290,27 @@ function populateDropdown(position, optionType) {
   // });
 }
 
-document
-  .getElementById("inputMonth")
-  .addEventListener("change", async function (event) {
-    const requestData = {
-      number: this.value,
-    };
-    try {
-      const response = await fetch("http://localhost:8080/add", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestData),
-      });
-      const data = await response.json();
-      // inputResult(data);
-      console.log("Server response:", data);
-    } catch (error) {
-      console.error("Error sending data:", error);
-    }
+// for c++ testing only
+// document
+//   .getElementById("inputMonth")
+//   .addEventListener("change", async function (event) {
+//     const requestData = {
+//       number: this.value,
+//     };
+//     try {
+//       const response = await fetch("http://localhost:8080/add", {
+//         method: "POST",
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify(requestData),
+//       });
+//       const data = await response.json();
+//       // inputResult(data);
+//       console.log("Server response:", data);
+//     } catch (error) {
+//       console.error("Error sending data:", error);
+//     }
 
-    // console.log(`Weekend Dates for ${month} 2024:`);
-  });
+//     // console.log(`Weekend Dates for ${month} 2024:`);
+//   });
