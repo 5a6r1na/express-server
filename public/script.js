@@ -56,21 +56,87 @@ populateDropdown("inputArrival", destOptions);
 populateDropdown("inputAdult", adultOptions);
 
 // async function fetchData() {
-//   try {
-//     const response = await fetch("http://localhost:3000/flights");
-//     const data = await response.json();
-//     console.log(data.carrier_options);
-//     displayResult(data);
-//     const year = 2024;
-//     const month = parseInt(document.getElementById("inputResult").textContent);
-//     const weekendDates = getWeekendDates(year, month);
+//   // Show loading animation
+//   document.getElementById("loading").style.display = "block";
+//   const requestArray = [];
 
-//     console.log(`Weekend Dates for ${month} 2024:`);
-//     weekendDates.forEach((date) => console.log(date));
+//   try {
+//     const year = parseInt(document.getElementById("inputYear").value);
+//     const month = parseInt(document.getElementById("inputMonth").value);
+//     const depart = document.getElementById("inputDepart").value;
+//     const arrival = document.getElementById("inputArrival").value;
+//     const adult = document.getElementById("inputAdult").value;
+//     const weekendDates = getWeekendDates(year, month);
+//     const friArray = [];
+//     const sunArray = [];
+
+//     weekendDates.forEach((value, index) => {
+//       if (index % 2 === 0) {
+//         friArray.push(value);
+//       }
+//     });
+
+//     // Loop through odd indices and assign values to oddArray
+//     weekendDates.forEach((value, index) => {
+//       if (index % 2 !== 0) {
+//         sunArray.push(value);
+//       }
+//     });
+
+//     const promises = friArray.map((friDate, index) => {
+//       const sunDate = sunArray[index];
+//       const requestData = {
+//         trip: 2,
+//         dep_location_codes: depart,
+//         arr_location_codes: arrival,
+//         dep_location_types: 2,
+//         arr_location_types: 2,
+//         dep_dates: friDate,
+//         return_date: sunDate,
+//         adult: adult,
+//         child: 0,
+//         cabin_class: 2,
+//         is_direct_flight_only: true,
+//         exclude_budget_airline: false,
+//         search_key: "",
+//         target_page: 1,
+//         order_by: "0_1",
+//       };
+
+//       const params = new URLSearchParams(requestData).toString();
+//       requestArray.push(params);
+//       // const requestDataRound = {
+//       //   depa: depart,
+//       //   dest: arrival,
+//       //   OUT_DATE: friArray[i],
+//       //   IN_DATE: sunArray[i],
+//       //   adults: adult,
+//       // };
+//       return fetch("/flights", {
+//         method: "POST",
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify(requestData),
+//       }).then((response) => response.json());
+//     });
+
+//     const responseData = await Promise.all(promises);
+
+//     // Hide loading animation after all API calls are finished
+//     document.getElementById("loading").style.display = "none";
+
+//     console.log("responseData: ", responseData);
+
+//     // Display the accumulated flight data
+//     displayResult(responseData, friArray, sunArray, requestArray);
 //   } catch (error) {
 //     console.error("Error fetching data:", error);
+//     // Hide loading animation in case of error
+//     document.getElementById("loading").style.display = "none";
 //   }
 // }
+
 async function fetchData() {
   // Show loading animation
   document.getElementById("loading").style.display = "block";
@@ -102,33 +168,17 @@ async function fetchData() {
     const promises = friArray.map((friDate, index) => {
       const sunDate = sunArray[index];
       const requestData = {
-        trip: 2,
-        dep_location_codes: depart,
-        arr_location_codes: arrival,
-        dep_location_types: 2,
-        arr_location_types: 2,
-        dep_dates: friDate,
-        return_date: sunDate,
+        depart: depart,
+        arrival: arrival,
+        startDate: friDate,
+        endDate: sunDate,
         adult: adult,
-        child: 0,
-        cabin_class: 2,
-        is_direct_flight_only: true,
-        exclude_budget_airline: false,
-        search_key: "",
-        target_page: 1,
-        order_by: "0_1",
       };
 
       const params = new URLSearchParams(requestData).toString();
       requestArray.push(params);
-      // const requestDataRound = {
-      //   depa: depart,
-      //   dest: arrival,
-      //   OUT_DATE: friArray[i],
-      //   IN_DATE: sunArray[i],
-      //   adults: adult,
-      // };
-      return fetch("/flights", {
+
+      return fetch("/scrape", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -153,30 +203,6 @@ async function fetchData() {
   }
 }
 
-// document
-//   .getElementById("inputMonth")
-//   .addEventListener("change", async function (event) {
-//     const requestData = {
-//       month: this.value,
-//     };
-//     try {
-//       const response = await fetch("/data", {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify(requestData),
-//       });
-//       const data = await response.json();
-//       // inputResult(data);
-//       console.log("Server response:", data);
-//     } catch (error) {
-//       console.error("Error sending data:", error);
-//     }
-
-//     // console.log(`Weekend Dates for ${month} 2024:`);
-//   });
-
 function displayResult(data, friArray, sunArray, requestArray) {
   const resultContainer = document.getElementById("resultContainer");
   let tableHtml = `<table><tr><th style="border: 1px solid black;padding: 10px;">Dates</th><th style="border: 1px solid black;padding: 10px;">Airline</th><th style="border: 1px solid black;padding: 10px;">Price</th></tr>`;
@@ -184,20 +210,25 @@ function displayResult(data, friArray, sunArray, requestArray) {
   // Iterate over each object in the data array
   data.forEach((item, index) => {
     // Access the carrier_options array in each object
-    const carrierOptions = item.carrier_options;
+    // const carrierOptions = item.carrier_options;
+
+    //ezTravel
+    const carrierName = item.carrier;
+    const cheapestOption = item.prices;
+    const url = item.websiteUrl;
 
     // Find the option with the smallest minPrice
-    const cheapestOption = carrierOptions.reduce((prev, current) => {
-      return prev.minPrice < current.minPrice ? prev : current;
-    });
+    // const cheapestOption = carrierOptions.reduce((prev, current) => {
+    //   return prev.minPrice < current.minPrice ? prev : current;
+    // });
     // Format the minPrice in NTD
-    const formattedPrice = cheapestOption.minPrice.toLocaleString("zh-TW", {
-      style: "currency",
-      currency: "TWD",
-    });
+    // const formattedPrice = cheapestOption.toLocaleString("zh-TW", {
+    //   style: "currency",
+    //   currency: "TWD",
+    // });
 
-    // Add a row to the table for the cheapest option
-    tableHtml += `<tr><td style='border: 1px solid black; padding: 10px;'>${friArray[index]} ~ ${sunArray[index]}</td><td style='border: 1px solid black; padding: 10px;'>${cheapestOption.carrierName}</td><td style='border: 1px solid black;padding: 10px'><a href="https://www.travel4u.com.tw/flight/search/?${requestArray[index]}">${formattedPrice}</a></td></tr>`;
+    // Add a row to the table for the cheapest option https://www.travel4u.com.tw/flight/search/?${requestArray[index]}
+    tableHtml += `<tr><td style='border: 1px solid black; padding: 10px;'>${friArray[index]} ~ ${sunArray[index]}</td><td style='border: 1px solid black; padding: 10px;'>${carrierName}</td><td style='border: 1px solid black;padding: 10px'><a href="${url}">$${cheapestOption}</a></td></tr>`;
   });
 
   tableHtml += "</table>";
