@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
-// const {scrapeWebsite} = require("./scrape.js")
+const { scrapeWebsite } = require("./scrape.js");
 
 const app = express();
 const port = 3000;
@@ -64,11 +64,39 @@ app.post("/flights", async (req, res) => {
     const requestData = req.body; // Access the entire request body
     const params = new URLSearchParams(requestData).toString();
     const url = `https://www.travel4u.com.tw/flight/search/flights/?${params}`;
-    // const url = `https://flight.eztravel.com.tw/tickets-roundtrip-${requestData.depa}-${requestData.dest}/?outbounddate=${requestData.OUT_DATE}&inbounddate=${requestData.IN_DATE}&dport=&aport=&adults=${requestData.adults}&children=0&infants=0&direct=true&cabintype=tourist&airline=&searchbox=t`
     // const url = `https://flight.eztravel.com.tw/tickets-${trip}-${depa}-${dest}/?outbounddate=${OUT_DATE}&inbounddate=${IN_DATE}&dport=&aport=&adults=${adults}&children=0&infants=0&direct=true&cabintype=&airline=&searchbox=s`
     const response = await fetch(url);
     const data = await response.json();
     res.json(data);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+app.post("/scrape", async (req, res) => {
+  try {
+    const requestData = {
+      depa: req.body.depart,
+      dest: req.body.arrival,
+      OUT_DATE: convertDate(req.body.startDate),
+      IN_DATE: convertDate(req.body.endDate),
+      adults: req.body.adult,
+    };
+    function convertDate(date) {
+      return date.split("-").reverse().join("%2F");
+    }
+
+    const websiteUrl = `https://flight.eztravel.com.tw/tickets-roundtrip-${requestData.depa}-${requestData.dest}/?outbounddate=${requestData.OUT_DATE}&inbounddate=${requestData.IN_DATE}&dport=&aport=&adults=${requestData.adults}&children=0&infants=0&direct=true&cabintype=tourist&airline=&searchbox=t`;
+    scrapeWebsite(websiteUrl)
+      .then((flightData) => {
+        // Add websiteUrl to the flightData object
+        flightData.websiteUrl = websiteUrl;
+        res.json(flightData);
+      })
+      .catch((error) => {
+        console.error("Error during scraping:", error);
+      });
   } catch (error) {
     console.error("Error fetching data:", error);
     res.status(500).json({ error: "Internal Server Error" });
