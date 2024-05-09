@@ -1,5 +1,40 @@
 document.getElementById("fetchDataBtn").addEventListener("click", fetchData);
 
+//Sabrina{5/9}: global variables
+let startDay = "";
+let endDay = "";
+
+// Sabrina{4/30}: create Vanilla Calendar
+document.addEventListener("DOMContentLoaded", function (event) {
+  console.log("DOMContentLoaded event fired");
+  const calendar = new VanillaCalendar("#calendar", {
+    type: "default",
+    settings: {
+      visibility: {
+        theme: "dark",
+      },
+      iso8601: false,
+      range: {
+        disablePast: true,
+      },
+      selection: {
+        day: "multiple-ranged",
+      },
+    },
+    actions: {
+      clickDay(event, self) {
+        let selectedDates = self.selectedDates;
+        let length = selectedDates.length;
+        startDay = selectedDates[0];
+        endDay = selectedDates[length - 1];
+        console.log(selectedDates[0], selectedDates[length - 1]);
+        return startDay, endDay;
+      },
+    },
+  });
+  calendar.init();
+});
+
 const monthOptions = [
   { value: "1", textContent: "January" },
   { value: "2", textContent: "February" },
@@ -49,8 +84,6 @@ const adultOptions = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"].map(
   (adult) => ({ value: adult, textContent: adult })
 );
 
-populateDropdown("inputYear", yearOptions);
-populateDropdown("inputMonth", monthOptions);
 populateDropdown("inputDepart", destOptions);
 populateDropdown("inputArrival", destOptions);
 populateDropdown("inputAdult", adultOptions);
